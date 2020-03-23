@@ -2,17 +2,17 @@
   <section class="profile">
     <HeaderTop tittle="我的"/>
     <section class="profile-number">
-        <router-link to="/Login" class="profile-link">
+        <router-link :to="userInfo._id ? '/userinfo' : '/Login'" class="profile-link">
           <div class="profile_image">
             <i class="iconfont icon-person"></i>
           </div>
           <div class="user-info">
-            <p class="user-info-top">登录/注册</p>
+            <p class="user-info-top" v-if="!userInfo.phone">{{userInfo.name ||'登录/注册'}}</p>
             <p>
             <span class="user-icon">
               <i class="iconfont icon-shouji icon-mobile"></i>
             </span>
-              <span class="icon-mobile-number">暂无绑定手机号</span>
+              <span class="icon-mobile-number">{{userInfo.phone || '暂无绑定手机号'}}</span>
             </p>
           </div>
           <span class="arrow">
@@ -86,17 +86,60 @@
                 <i class="iconfont icon-jiantou1"></i>
               </span>
         </div>
+
       </a>
     </section>
+    <section class="profile_my_order border-1px">
+      <!-- 服务中心 -->
+      <van-button type="danger" @click="confirm" style="width: 100%" v-show="userInfo._id">退出登录</van-button>
+    </section>
+
   </section>
 
 </template>
 
 <script>
   import HeaderTop from '../../components/HeaderTop/HeaderTop'
+  import {mapState} from 'vuex'
   export default {
+    data() {
+      return {
+        modal1: false
+      }
+    },
     components: {
-      HeaderTop
+      HeaderTop,
+    },
+    computed: {
+      ...mapState(['userInfo'])
+    },
+    methods: {
+      confirm () {
+        // this.$Modal.confirm({
+        //   title: '确认退出吗',
+        //   loading: true,
+        //   onOk: () => {
+        //     setTimeout(()=> {
+        //       this.$store.dispatch('logout')
+        //       this.$Modal.remove()
+        //       this.$Message.info('退出成功');
+        //     },1000)
+        //   },
+        //   onCancel: () => {
+        //     this.$Message.info('取消退出');
+        //   }
+        // })
+        this.$dialog.confirm({
+          message: '确认退出吗?',
+        }).then(() => {
+          setTimeout(()=> {
+            this.$notify({ type: 'success', message: '退出成功' });
+            this.$store.dispatch('logout')
+          },1000)
+        }).catch(() => {
+          this.$notify({ type: 'primary', message: '取消退出' })
+        })
+      },
     }
   }
 </script>
